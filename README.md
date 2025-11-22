@@ -2,7 +2,7 @@
 
 Interstellar Gateway, tarayıcınızda çalışan, sinematik ve etkileşimli bir Einstein-Rosen Köprüsü (Solucan Deliği) simülasyonudur. Three.js ve WebGL teknolojileri kullanılarak geliştirilen bu proje, uzay-zaman bükülmesini ve enerji akışlarını görselleştirmeyi amaçlar.
 
-Canlı Önizleme Linki (Kendi linkinizi buraya ekleyin)
+Canlı Önizleme Linki: https://ilkeripek-dev.github.io/Interstellar-Gateway/
 
 ✨ Özellikler
 
