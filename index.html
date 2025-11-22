@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interstellar Gateway</title>
+    <title>Interstellar Gateway - Warp Speed</title>
     <style>
         body {
             margin: 0;
@@ -12,7 +12,7 @@
             font-family: 'Courier New', monospace;
         }
         
-        canvas { display: block; }
+        canvas { display: block; cursor: pointer; } /* İmleci değiştirdim */
 
         #ui {
             position: absolute;
@@ -29,7 +29,13 @@
             border-left: 2px solid #00aaff;
         }
         
-        /* Parlaklık seviyesini gösteren dinamik yazı */
+        .instruction {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #00ffff;
+            opacity: 0.8;
+        }
+
         #brightness-indicator {
             margin-top: 5px;
             opacity: 0;
@@ -42,6 +48,7 @@
 
     <div id="ui">
         <div>Parlaklık Ayarı: 🖱️ Tekerlek</div>
+        <div class="instruction">🚀 Hızlanmak için: BASILI TUT</div>
         <div id="brightness-indicator">Yoğunluk: 2.5</div>
     </div>
 
@@ -64,7 +71,6 @@
 
         // --- 1. SAHNE KURULUMU ---
         const scene = new THREE.Scene();
-        // Uzay boşluğu sisi (Hafif mavi/siyah)
         scene.fog = new THREE.FogExp2(0x000510, 0.02);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -73,7 +79,6 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        // Daha sinematik renk tonlaması
         renderer.toneMapping = THREE.ReinhardToneMapping;
         document.body.appendChild(renderer.domElement);
 
@@ -81,12 +86,12 @@
         controls.enableDamping = true;
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.5;
-        controls.maxPolarAngle = Math.PI / 1.5; // Kameranın yerin altına girmesini engelle
+        controls.maxPolarAngle = Math.PI / 1.5; 
 
-        // --- POST-PROCESSING (BLOOM / PARLAMA) ---
+        // --- POST-PROCESSING (BLOOM) ---
         const renderScene = new RenderPass(scene, camera);
         const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.strength = 2.5; // Başlangıç parlaklığı
+        bloomPass.strength = 2.5; 
         bloomPass.radius = 0.5;
         bloomPass.threshold = 0.1;
 
@@ -95,22 +100,18 @@
         composer.addPass(bloomPass);
 
 
-        // --- 2. PARLAKLIK KONTROLÜ (MOUSE TEKERLEĞİ) ---
+        // --- 2. PARLAKLIK KONTROLÜ ---
         const brightnessIndicator = document.getElementById('brightness-indicator');
         let brightnessTimeout;
 
         window.addEventListener('wheel', (event) => {
             const sensitivity = 0.002;
-            // Tekerlek hareketiyle parlaklığı değiştir
             bloomPass.strength -= event.deltaY * sensitivity;
-            // Sınırlar (0 ile 10 arası)
             bloomPass.strength = Math.max(0.0, Math.min(bloomPass.strength, 10.0));
 
-            // Ekranda göster
             brightnessIndicator.innerText = `Yoğunluk: ${bloomPass.strength.toFixed(1)}`;
             brightnessIndicator.style.opacity = '1';
             
-            // 2 saniye sonra yazıyı gizle
             clearTimeout(brightnessTimeout);
             brightnessTimeout = setTimeout(() => {
                 brightnessIndicator.style.opacity = '0';
@@ -118,20 +119,26 @@
         });
 
 
-        // --- 3. SOLUCAN DELİĞİ (KUM SAATİ GEOMETRİSİ) ---
-        const points = [];
-        for (let i = 0; i <= 60; i++) {
-            // Yükseklik aralığı
-            const y = (i / 60) * 14 - 7; 
-            // Hiperbolik eğri formülü
+        // --- 3. GEOMETRİ (İKİYE BÖLÜNMÜŞ KUM SAATİ) ---
+        const pointsTop = [];
+        for (let i = 0; i <= 30; i++) {
+            const y = (i / 30) * 7; 
             const x = Math.sqrt(y * y * 0.5 + 1.5); 
-            points.push(new THREE.Vector2(x, y));
+            pointsTop.push(new THREE.Vector2(x, y));
         }
-        // LatheGeometry: Eğriyi döndürerek 3D şekil oluşturur
-        const geometry = new THREE.LatheGeometry(points, 64);
+
+        const pointsBottom = [];
+        for (let i = 0; i <= 30; i++) {
+            const y = (i / 30) * 7 - 7; 
+            const x = Math.sqrt(y * y * 0.5 + 1.5); 
+            pointsBottom.push(new THREE.Vector2(x, y));
+        }
+
+        const geometryTop = new THREE.LatheGeometry(pointsTop, 64);
+        const geometryBottom = new THREE.LatheGeometry(pointsBottom, 64);
 
 
-        // --- 4. ENERJİ DOKUSU OLUŞTURMA ---
+        // --- 4. ENERJİ DOKUSU ---
         const createEnergyTexture = () => {
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 1024; 
@@ -139,7 +146,6 @@
             
             ctx.fillStyle = '#000000'; ctx.fillRect(0,0,512,1024);
 
-            // Rastgele enerji sütunları
             for(let i=0; i<100; i++) {
                 const x = Math.random() * 512;
                 const width = Math.random() * 10 + 2;
@@ -166,16 +172,17 @@
             transparent: true,
             opacity: 0.8,
             side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending, // Parlama efekti için önemli
+            blending: THREE.AdditiveBlending,
             depthWrite: false 
         });
 
-        const wormhole = new THREE.Mesh(geometry, material);
-        scene.add(wormhole);
+        const wormholeTop = new THREE.Mesh(geometryTop, material);
+        const wormholeBottom = new THREE.Mesh(geometryBottom, material);
+        scene.add(wormholeTop);
+        scene.add(wormholeBottom);
 
-        // İç katman (Derinlik hissi için ikinci, daha soluk katman)
-        const innerGeo = new THREE.LatheGeometry(points, 64);
-        innerGeo.scale(0.9, 1, 0.9); 
+
+        // --- İÇ KATMAN ---
         const innerMat = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
@@ -183,15 +190,22 @@
             side: THREE.DoubleSide,
             blending: THREE.AdditiveBlending
         });
-        const innerWormhole = new THREE.Mesh(innerGeo, innerMat);
-        scene.add(innerWormhole);
+
+        const innerGeoTop = new THREE.LatheGeometry(pointsTop, 64);
+        innerGeoTop.scale(0.9, 1, 0.9);
+        const innerWormholeTop = new THREE.Mesh(innerGeoTop, innerMat);
+        scene.add(innerWormholeTop);
+
+        const innerGeoBottom = new THREE.LatheGeometry(pointsBottom, 64);
+        innerGeoBottom.scale(0.9, 1, 0.9);
+        const innerWormholeBottom = new THREE.Mesh(innerGeoBottom, innerMat);
+        scene.add(innerWormholeBottom);
 
 
-        // --- 5. AKRASYON DİSKLERİ (HALKALAR) ---
+        // --- 5. AKRASYON DİSKLERİ ---
         const createRing = (yPos) => {
             const ringGeo = new THREE.RingGeometry(3, 12, 64);
             
-            // Halka dokusu
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
@@ -202,7 +216,6 @@
             grad.addColorStop(1, 'rgba(0,0,0,0)');
             ctx.fillStyle = grad; ctx.fillRect(0,0,512,512);
             
-            // Spiral çizgiler
             for(let i=0; i<200; i++) {
                 ctx.beginPath();
                 const r = Math.random() * 200 + 50;
@@ -233,7 +246,7 @@
         scene.add(bottomRing);
 
 
-        // --- 6. MERKEZ IŞIN (BEAM) ---
+        // --- 6. MERKEZ IŞIN ---
         const beamGeo = new THREE.CylinderGeometry(0.5, 0.5, 30, 32, 1, true);
         const beamMat = new THREE.MeshBasicMaterial({
             color: 0xaaddff,
@@ -261,33 +274,68 @@
         scene.add(stars);
 
 
-        // --- 8. ANİMASYON DÖNGÜSÜ ---
+        // --- 8. HIZ KONTROLÜ VE ANİMASYON ---
+        
         const clock = new THREE.Clock();
+        
+        // Hız Değişkenleri
+        let isMouseDown = false;
+        let currentRotationSpeed = 0.2; // Başlangıç dönüş hızı
+        let currentFlowSpeed = 0.5;     // Başlangıç doku akış hızı
+        
+        // Birikimli Değerler (Akıcı geçiş için)
+        let rotationAccumulator = 0;
+        let textureAccumulator = 0;
+
+        // Olay Dinleyicileri
+        window.addEventListener('mousedown', () => isMouseDown = true);
+        window.addEventListener('mouseup', () => isMouseDown = false);
+        window.addEventListener('touchstart', () => isMouseDown = true);
+        window.addEventListener('touchend', () => isMouseDown = false);
 
         const animate = () => {
             requestAnimationFrame(animate);
-            const time = clock.getElapsedTime();
+            const delta = clock.getDelta(); // Her kare arasındaki süre
 
-            // Doku akışını sağla
-            texture.offset.y = time * 0.5;
+            // Hedef Hızlar (Basılıyken hızlı, değilken yavaş)
+            // Dönüş hızı 0.2 -> 2.0'a çıkıyor
+            // Akış hızı 0.5 -> 3.0'a çıkıyor
+            const targetRot = isMouseDown ? 2.0 : 0.2;
+            const targetFlow = isMouseDown ? 3.0 : 0.5;
+
+            // Lerp (Yumuşak Geçiş)
+            currentRotationSpeed += (targetRot - currentRotationSpeed) * 0.05;
+            currentFlowSpeed += (targetFlow - currentFlowSpeed) * 0.05;
+
+            // Birikimli değerleri güncelle
+            rotationAccumulator += delta * currentRotationSpeed;
+            textureAccumulator += delta * currentFlowSpeed;
+
+            // Doku akışı
+            texture.offset.y = textureAccumulator;
             
-            // Dönme hareketleri
-            wormhole.rotation.y = time * 0.2;
-            innerWormhole.rotation.y = time * 0.3;
-            topRing.rotation.z = time * 0.1;
-            bottomRing.rotation.z = -time * 0.1;
+            // ZIT YÖNLÜ DÖNÜŞLER
+            // Üst taraf
+            wormholeTop.rotation.y = rotationAccumulator;
+            innerWormholeTop.rotation.y = rotationAccumulator * 1.5;
+            topRing.rotation.z = rotationAccumulator * 0.5;
 
-            // Işın nefes alma efekti
-            beam.scale.x = 1 + Math.sin(time * 2) * 0.1;
-            beam.scale.z = 1 + Math.sin(time * 2) * 0.1;
+            // Alt taraf (Negatif dönüş)
+            wormholeBottom.rotation.y = -rotationAccumulator;
+            innerWormholeBottom.rotation.y = -rotationAccumulator * 1.5;
+            bottomRing.rotation.z = -rotationAccumulator * 0.5;
+
+            // Işın efekti (Hıza göre genişlesin)
+            const beamPulse = 1 + Math.sin(clock.getElapsedTime() * 2) * 0.1;
+            const beamExpand = (currentRotationSpeed - 0.2) * 0.5; // Hızlanınca ek genişleme
+            beam.scale.x = beamPulse + beamExpand;
+            beam.scale.z = beamPulse + beamExpand;
 
             controls.update();
-            // Normal renderer yerine composer (Bloom efekti için) kullanıyoruz
             composer.render();
         };
         animate();
 
-        // Ekran boyutu değişirse
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
