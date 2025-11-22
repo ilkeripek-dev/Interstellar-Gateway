@@ -6,24 +6,24 @@ Canlı Önizleme Linki (Kendi linkinizi buraya ekleyin)
 
 ✨ Özellikler
 
-Hiper-Gerçekçi Geometri: Matematiksel LatheGeometry kullanılarak oluşturulmuş, fiziksel teorilere dayalı kum saati formu.
+• Hiper-Gerçekçi Geometri: Matematiksel LatheGeometry kullanılarak oluşturulmuş, fiziksel teorilere dayalı kum saati formu.
 
-Dinamik Enerji Akışı: Tünel boyunca sürekli akan, hipnotik enerji dokuları.
+• Dinamik Enerji Akışı: Tünel boyunca sürekli akan, hipnotik enerji dokuları.
 
-Sinematik Post-Processing: UnrealBloomPass ile oluşturulmuş, göz alıcı parlama ve neon efektleri.
+• Sinematik Post-Processing: UnrealBloomPass ile oluşturulmuş, göz alıcı parlama ve neon efektleri.
 
-Akrasyon Diskleri: Solucan deliğinin giriş ve çıkışında dönen, çift katmanlı olay ufku halkaları.
+• Akrasyon Diskleri: Solucan deliğinin giriş ve çıkışında dönen, çift katmanlı olay ufku halkaları.
 
-Etkileşimli Kontroller:
+• Etkileşimli Kontroller:
 
-Parlaklık Ayarı: Farenin tekerleğini kullanarak bloom (parlama) şiddetini anlık olarak artırıp azaltabilirsiniz.
+    • Parlaklık Ayarı: Farenin tekerleğini kullanarak bloom (parlama) şiddetini anlık olarak artırıp azaltabilirsiniz.
 
-Kamera Hareketi: Sahne kendi etrafında dönerken fare ile hafifçe yönlendirme yapabilirsiniz.
+    • Kamera Hareketi: Sahne kendi etrafında dönerken fare ile hafifçe yönlendirme yapabilirsiniz.
 
 🛠️ Kullanılan Teknolojiler
 
-HTML5 / CSS3: Temel yapı ve arayüz.
+• HTML5 / CSS3: Temel yapı ve arayüz.
 
-Three.js: 3D grafik motoru.
+• Three.js: 3D grafik motoru.
 
-Post-Processing: Gelişmiş görsel efektler (Bloom/Glow).
+• Post-Processing: Gelişmiş görsel efektler (Bloom/Glow).
